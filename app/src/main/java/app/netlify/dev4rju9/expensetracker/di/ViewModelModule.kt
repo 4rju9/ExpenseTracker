@@ -7,5 +7,5 @@ import org.koin.dsl.module
 
 val viewModelModule = module {
     viewModel { DashboardViewModel(get(), get(), get()) }
-    viewModel { CardDetailViewModel(get(), get(), get()) }
+    viewModel { CardDetailViewModel(get(), get(), get(), get(), get()) }
 }

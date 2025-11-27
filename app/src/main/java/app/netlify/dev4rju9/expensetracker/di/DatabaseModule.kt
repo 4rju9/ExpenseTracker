@@ -10,7 +10,7 @@ val databaseModule = module {
             get(),
             AppDatabase::class.java,
             "expense_db"
-        ).build()
+        ).fallbackToDestructiveMigration(true).build()
     }
     single { get<AppDatabase>().categoryDao }
     single { get<AppDatabase>().expenseDao }

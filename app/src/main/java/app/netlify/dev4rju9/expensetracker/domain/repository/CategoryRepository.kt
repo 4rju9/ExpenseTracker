@@ -6,5 +6,7 @@ import kotlinx.coroutines.flow.Flow
 interface CategoryRepository {
     fun getCategoriesForMonth(month: String): Flow<List<Category>>
     fun searchCategories(query: String): Flow<List<Category>>
-    suspend fun addCategory(name: String)
+    suspend fun addCategory(name: String, color: Int)
+    suspend fun getCategory(categoryId: Long) : Category
+    suspend fun updateCategory(category: Category)
 }

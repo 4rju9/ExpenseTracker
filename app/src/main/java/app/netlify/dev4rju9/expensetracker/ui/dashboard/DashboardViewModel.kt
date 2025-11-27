@@ -43,9 +43,17 @@ class DashboardViewModel(
             .format(DateTimeFormatter.ofPattern("yyyy-MM"))
     }
 
-    fun addNewCategory(name: String) = viewModelScope.launch {
-        addCategory(name)
+    fun hasNextMonth () : Boolean {
+        return _selectedMonth.value != currentMonth
+    }
+
+    fun addNewCategory(name: String, color: Int) = viewModelScope.launch {
+        if (name.isEmpty()) return@launch
+        val newName = name.replaceFirstChar { it.uppercaseChar() }
+        if (categories.value.any { it.name == newName }) return@launch
+        addCategory(newName, color)
     }
 
     fun search(query: String) = searchCategories(query)
+
 }
