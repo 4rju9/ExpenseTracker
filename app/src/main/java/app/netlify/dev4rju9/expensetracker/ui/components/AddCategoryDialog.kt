@@ -42,7 +42,7 @@ fun AddCategoryDialog(
     }
     val scope = rememberCoroutineScope()
 
-    Dialog(onDismissRequest = onDismiss) {
+    Dialog(onDismissRequest = {}) {
         Card (
             colors = CardDefaults.cardColors(
                 containerColor = noteBackgrounAnimatable.value,

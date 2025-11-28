@@ -24,7 +24,7 @@ fun AddExpenseDialog(
     var title by remember { mutableStateOf("") }
     var amount by remember { mutableStateOf("") }
 
-    Dialog(onDismissRequest = onDismiss) {
+    Dialog(onDismissRequest = {}) {
         Card (
             colors = CardDefaults.cardColors(
                 containerColor = Color(color),

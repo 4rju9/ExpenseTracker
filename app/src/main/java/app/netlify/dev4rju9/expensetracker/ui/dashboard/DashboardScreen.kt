@@ -56,10 +56,21 @@ fun DashboardScreen(
 
     Scaffold(
         floatingActionButton = {
-            FloatingActionButton(
-                onClick = { showDialog = true },
-                shape = CircleShape
-            ) { Icon(Icons.Default.Add, contentDescription = "Add Category") }
+            Row (
+                modifier = Modifier.fillMaxWidth(0.9f),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                val total = (if (isSearching) searchResult else categories).sumOf { it.total }
+                Text(
+                    text = "Total: ₹$total",
+                    style = MaterialTheme.typography.titleLarge
+                )
+                FloatingActionButton(
+                    onClick = { showDialog = true },
+                    shape = CircleShape
+                ) { Icon(Icons.Default.Add, contentDescription = "Add Category") }
+            }
         }
     ) { padding ->
         Column(

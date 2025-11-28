@@ -60,7 +60,6 @@ fun CardDetailScreen(
 
     Scaffold(
         floatingActionButton = {
-
             Row (
                 modifier = Modifier.fillMaxWidth(0.9f),
                 horizontalArrangement = Arrangement.SpaceBetween,
