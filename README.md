@@ -1,6 +1,6 @@
 <p align="center">
   <a href="https://github.com/4rju9/ExpenseTracker">
-    <div>
+    <div align="center">
       <img src="https://github.com/user-attachments/assets/28627a61-49df-48c4-9b7d-094a047a4076" width="240" alt="Image 1">
       <img src="https://github.com/user-attachments/assets/15de2bbe-8097-4607-ab7b-cb75f244666e" width="240" alt="Image 2">
       <img src="https://github.com/user-attachments/assets/df9d042c-1eac-40d1-880a-aa5b46eea7e2" width="240" alt="Image 3">
