@@ -2,6 +2,7 @@ package app.netlify.dev4rju9.expensetracker.ui.components
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -35,12 +36,16 @@ fun CardItem (
     cornerRadius: Dp = 10.dp,
     curCornerSize: Dp = 30.dp,
     timestamp: Long = 0L,
-    onClick: () -> Unit
+    onClick: () -> Unit = {},
+    onLongClick: () -> Unit = {}
 ) {
 
     Box (
         modifier = modifier
-            .clickable(onClick = onClick)
+            .combinedClickable(
+                onClick = onClick,
+                onLongClick = onLongClick
+            )
     ) {
         Canvas(
             modifier = Modifier.matchParentSize()

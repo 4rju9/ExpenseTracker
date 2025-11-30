@@ -36,6 +36,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import app.netlify.dev4rju9.expensetracker.domain.model.Category
 import app.netlify.dev4rju9.expensetracker.ui.components.AddCategoryDialog
 import app.netlify.dev4rju9.expensetracker.ui.components.CardItem
 import org.koin.androidx.compose.koinViewModel
@@ -53,6 +54,8 @@ fun DashboardScreen(
 
     var showDialog by remember { mutableStateOf(false) }
     val isSearching = searchQuery.isNotBlank()
+
+    var selectedCategory: Category? by remember { mutableStateOf(null) }
 
     Scaffold(
         floatingActionButton = {
@@ -133,7 +136,11 @@ fun DashboardScreen(
                         modifier = Modifier,
                         cornerRadius = 10.dp,
                         curCornerSize = 30.dp,
-                        onClick = { onNavigateToCategory(category.id) }
+                        onClick = { onNavigateToCategory(category.id) },
+                        onLongClick = {
+                            selectedCategory = category
+                            showDialog = true
+                        }
                     )
                 }
             }
@@ -142,8 +149,10 @@ fun DashboardScreen(
 
     if (showDialog) {
         AddCategoryDialog(
-            onConfirm = { name, color ->
-                viewModel.addNewCategory(name, color)
+            category = selectedCategory,
+            onConfirm = { name, color, category ->
+                viewModel.addNewCategory(name, color, category)
+                selectedCategory = null
                 showDialog = false
             },
             onDismiss = { showDialog = false }

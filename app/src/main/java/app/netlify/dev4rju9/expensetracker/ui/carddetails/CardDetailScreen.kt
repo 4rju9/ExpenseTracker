@@ -103,7 +103,7 @@ fun CardDetailScreen(
                         amount = expense.amount,
                         color = category?.color ?: CategoryEntity.categoryColors.random().toArgb(),
                         timestamp = expense.timestamp
-                    ) {}
+                    )
                 }
             }
         }

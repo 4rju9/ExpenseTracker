@@ -26,15 +26,17 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import app.netlify.dev4rju9.expensetracker.data.local.entity.CategoryEntity
+import app.netlify.dev4rju9.expensetracker.domain.model.Category
 import kotlinx.coroutines.launch
 
 @Composable
 fun AddCategoryDialog(
-    onConfirm: (String, Int) -> Unit,
+    category: Category? = null,
+    onConfirm: (String, Int, Category?) -> Unit,
     onDismiss: () -> Unit
 ) {
-    var name by remember { mutableStateOf("") }
-    var selectedColor by remember { mutableIntStateOf(CategoryEntity.categoryColors.random().toArgb()) }
+    var name by remember { mutableStateOf(category?.name?: "") }
+    var selectedColor by remember { mutableIntStateOf(category?.color?: CategoryEntity.categoryColors.random().toArgb()) }
     val noteBackgrounAnimatable = remember {
         Animatable(
             Color(selectedColor)
@@ -115,7 +117,7 @@ fun AddCategoryDialog(
                     horizontalArrangement = Arrangement.End
                 ) {
                     TextButton(onClick = onDismiss) { Text("Cancel", color = Color.Black) }
-                    TextButton(onClick = { onConfirm(name, selectedColor) }) { Text("Add", color = Color.Black) }
+                    TextButton(onClick = { onConfirm(name, selectedColor, category) }) { Text("Add", color = Color.Black) }
                 }
             }
         }

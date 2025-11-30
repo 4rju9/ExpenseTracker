@@ -31,7 +31,6 @@ class CardDetailViewModel(
             .stateIn(viewModelScope, SharingStarted.Lazily, 0.0)
 
     fun add(categoryId: Long, title: String, amount: Double) {
-        if (amount <= 0) return
         if (title.isEmpty()) return
         viewModelScope.launch {
             val newTitle = title.replaceFirstChar { it.uppercaseChar() }
