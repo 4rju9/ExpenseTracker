@@ -155,7 +155,10 @@ fun DashboardScreen(
                 selectedCategory = null
                 showDialog = false
             },
-            onDismiss = { showDialog = false }
+            onDismiss = {
+                selectedCategory = null
+                showDialog = false
+            }
         )
     }
 }
