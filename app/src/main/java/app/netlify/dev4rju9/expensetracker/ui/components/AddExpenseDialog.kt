@@ -14,15 +14,23 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import app.netlify.dev4rju9.expensetracker.domain.model.Expense
 
 @Composable
 fun AddExpenseDialog(
     color: Int,
-    onConfirm: (String, Double) -> Unit,
+    expense: Expense? = null,
+    onConfirm: (String, Double, Expense?) -> Unit,
     onDismiss: () -> Unit
 ) {
-    var title by remember { mutableStateOf("") }
-    var amount by remember { mutableStateOf("") }
+    var title by remember { mutableStateOf(expense?.title ?: "") }
+    var amount by remember {
+        mutableStateOf(
+            if (expense != null && expense.amount > 0.0) {
+                expense.amount.toString()
+            } else ""
+        )
+    }
 
     Dialog(onDismissRequest = {}) {
         Card (
@@ -85,7 +93,7 @@ fun AddExpenseDialog(
                     TextButton(onClick = onDismiss) { Text("Cancel", color = Color.Black) }
                     TextButton(onClick = {
                         val double = amount.toDoubleOrNull() ?: 0.0
-                        onConfirm(title, double)
+                        onConfirm(title, double, expense)
                     }) { Text("Add", color = Color.Black) }
                 }
             }

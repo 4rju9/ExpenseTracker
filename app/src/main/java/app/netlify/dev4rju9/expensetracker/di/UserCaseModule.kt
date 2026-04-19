@@ -8,6 +8,7 @@ import app.netlify.dev4rju9.expensetracker.domain.usecase.GetExpensesForCategory
 import app.netlify.dev4rju9.expensetracker.domain.usecase.GetMonthlyTotalUseCase
 import app.netlify.dev4rju9.expensetracker.domain.usecase.SearchCategoriesUseCase
 import app.netlify.dev4rju9.expensetracker.domain.usecase.UpdateCategoryUseCase
+import app.netlify.dev4rju9.expensetracker.domain.usecase.UpdateExpenseUseCase
 import org.koin.dsl.module
 
 val useCaseModule = module {
@@ -19,4 +20,5 @@ val useCaseModule = module {
     factory { GetMonthlyTotalUseCase(get()) }
     factory { GetCategoryUseCase(get()) }
     factory { UpdateCategoryUseCase(get()) }
+    factory { UpdateExpenseUseCase(get()) }
 }

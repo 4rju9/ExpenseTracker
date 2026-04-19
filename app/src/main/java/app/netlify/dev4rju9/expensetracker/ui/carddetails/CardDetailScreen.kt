@@ -34,6 +34,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import app.netlify.dev4rju9.expensetracker.data.local.entity.CategoryEntity
 import app.netlify.dev4rju9.expensetracker.domain.model.Category
+import app.netlify.dev4rju9.expensetracker.domain.model.Expense
 import app.netlify.dev4rju9.expensetracker.ui.components.AddExpenseDialog
 import app.netlify.dev4rju9.expensetracker.ui.components.CardItem
 import org.koin.androidx.compose.koinViewModel
@@ -44,15 +45,16 @@ import java.time.format.DateTimeFormatter
 @Composable
 fun CardDetailScreen(
     categoryId: Long,
+    month: String,
     viewModel: CardDetailViewModel = koinViewModel()
 ) {
-    val month = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM"))
-
     val expenses by viewModel.expenses(categoryId, month).collectAsState()
     val total by viewModel.total(categoryId, month).collectAsState()
     var category: Category? by remember { mutableStateOf(null) }
 
     var showDialog by remember { mutableStateOf(false) }
+
+    var selectedExpense: Expense? by remember { mutableStateOf(null) }
 
     LaunchedEffect(Unit) {
         category = viewModel.get(categoryId)
@@ -66,7 +68,7 @@ fun CardDetailScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "Total: ₹$total",
+                    text = "Total: ₹%.2f".format(total),
                     style = MaterialTheme.typography.titleLarge
                 )
                 FloatingActionButton(
@@ -102,7 +104,11 @@ fun CardDetailScreen(
                         title = expense.title,
                         amount = expense.amount,
                         color = category?.color ?: CategoryEntity.categoryColors.random().toArgb(),
-                        timestamp = expense.timestamp
+                        timestamp = expense.timestamp,
+                        onLongClick = {
+                            selectedExpense = expense
+                            showDialog = true
+                        }
                     )
                 }
             }
@@ -112,8 +118,9 @@ fun CardDetailScreen(
     if (showDialog) {
         AddExpenseDialog(
             color = category?.color ?: CategoryEntity.categoryColors.random().toArgb(),
-            onConfirm = { title, amount ->
-                viewModel.add(categoryId, title, amount)
+            expense = selectedExpense,
+            onConfirm = { title, amount, expense ->
+                viewModel.add(categoryId, title, amount, expense)
                 showDialog = false
             },
             onDismiss = { showDialog = false }

@@ -35,9 +35,9 @@ fun AddCategoryDialog(
     onConfirm: (String, Int, Category?) -> Unit,
     onDismiss: () -> Unit
 ) {
-    var name by remember { mutableStateOf(category?.name?: "") }
+    var name by remember { mutableStateOf(category?.name ?: "") }
     var selectedColor by remember { mutableIntStateOf(category?.color?: CategoryEntity.categoryColors.random().toArgb()) }
-    val noteBackgrounAnimatable = remember {
+    val noteBackgroundAnimatable = remember {
         Animatable(
             Color(selectedColor)
         )
@@ -47,7 +47,7 @@ fun AddCategoryDialog(
     Dialog(onDismissRequest = {}) {
         Card (
             colors = CardDefaults.cardColors(
-                containerColor = noteBackgrounAnimatable.value,
+                containerColor = noteBackgroundAnimatable.value,
                 contentColor = Color.Black
             )
         ) {
@@ -70,7 +70,7 @@ fun AddCategoryDialog(
                                 .background(color)
                                 .border(
                                     3.dp,
-                                    color = if (colorInt == noteBackgrounAnimatable.value.toArgb()) {
+                                    color = if (colorInt == noteBackgroundAnimatable.value.toArgb()) {
                                         Color.Black
                                     } else Color.Transparent,
                                     CircleShape
@@ -78,7 +78,7 @@ fun AddCategoryDialog(
                                 .clickable {
                                     scope.launch {
                                         selectedColor = colorInt
-                                        noteBackgrounAnimatable.animateTo(
+                                        noteBackgroundAnimatable.animateTo(
                                             targetValue = Color(colorInt),
                                             animationSpec = tween(500)
                                         )

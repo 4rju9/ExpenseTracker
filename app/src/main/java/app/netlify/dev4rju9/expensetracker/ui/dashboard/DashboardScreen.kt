@@ -40,10 +40,11 @@ import app.netlify.dev4rju9.expensetracker.domain.model.Category
 import app.netlify.dev4rju9.expensetracker.ui.components.AddCategoryDialog
 import app.netlify.dev4rju9.expensetracker.ui.components.CardItem
 import org.koin.androidx.compose.koinViewModel
+import kotlin.math.roundToLong
 
 @Composable
 fun DashboardScreen(
-    onNavigateToCategory: (Long) -> Unit,
+    onNavigateToCategory: (Long, String) -> Unit,
     viewModel: DashboardViewModel = koinViewModel()
 ) {
     val selectedMonth by viewModel.selectedMonth.collectAsState()
@@ -64,9 +65,9 @@ fun DashboardScreen(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                val total = (if (isSearching) searchResult else categories).sumOf { it.total }
+                val total = ((if (isSearching) searchResult else categories).sumOf { it.total })
                 Text(
-                    text = "Total: ₹$total",
+                    text = "Total: ₹%.2f".format(total),
                     style = MaterialTheme.typography.titleLarge
                 )
                 FloatingActionButton(
@@ -136,7 +137,7 @@ fun DashboardScreen(
                         modifier = Modifier,
                         cornerRadius = 10.dp,
                         curCornerSize = 30.dp,
-                        onClick = { onNavigateToCategory(category.id) },
+                        onClick = { onNavigateToCategory(category.id, selectedMonth) },
                         onLongClick = {
                             selectedCategory = category
                             showDialog = true

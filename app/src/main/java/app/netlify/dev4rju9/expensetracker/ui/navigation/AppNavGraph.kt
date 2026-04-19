@@ -9,6 +9,8 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import app.netlify.dev4rju9.expensetracker.ui.dashboard.DashboardScreen
 import app.netlify.dev4rju9.expensetracker.ui.carddetails.CardDetailScreen
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 @Composable
 fun AppNavGraph(modifier: Modifier = Modifier) {
@@ -21,18 +23,24 @@ fun AppNavGraph(modifier: Modifier = Modifier) {
     ) {
         composable("dashboard") {
             DashboardScreen(
-                onNavigateToCategory = { id ->
-                    navController.navigate("cardDetail/$id")
+                onNavigateToCategory = { id, month ->
+                    navController.navigate("cardDetail/$id/$month")
                 }
             )
         }
 
         composable(
-            "cardDetail/{categoryId}",
-            arguments = listOf(navArgument("categoryId") { type = NavType.LongType })
+            "cardDetail/{categoryId}/{month}",
+            arguments = listOf(
+                navArgument("categoryId") { type = NavType.LongType },
+                navArgument("month") { type = NavType.StringType }
+            )
         ) { backStackEntry ->
             val categoryId = backStackEntry.arguments?.getLong("categoryId") ?: 0L
-            CardDetailScreen(categoryId = categoryId)
+            val currentMonth = LocalDate.now()
+                .format(DateTimeFormatter.ofPattern("yyyy-MM"))
+            val month = backStackEntry.arguments?.getString("month") ?: currentMonth
+            CardDetailScreen(categoryId = categoryId, month = month)
         }
     }
 }

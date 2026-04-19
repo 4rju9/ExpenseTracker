@@ -25,13 +25,27 @@ class ExpenseRepositoryImpl(
     override suspend fun addExpense(categoryId: Long, title: String, amount: Double) {
         val timestamp = System.currentTimeMillis()
 
-        val entity = ExpenseEntity(
+        val expense = ExpenseEntity(
             categoryId = categoryId,
             title = title,
             amount = amount,
             timestamp = timestamp
         )
 
-        expenseDao.insertExpense(entity)
+        expenseDao.insertExpense(expense)
+    }
+
+    override suspend fun updateExpense(
+        expense: Expense
+    ) {
+        val timestamp = System.currentTimeMillis()
+        val expense = ExpenseEntity(
+            id = expense.id,
+            categoryId = expense.categoryId,
+            title = expense.title,
+            amount = expense.amount,
+            timestamp = timestamp
+        )
+        expenseDao.updateExpense(expense)
     }
 }

@@ -3,7 +3,9 @@ package app.netlify.dev4rju9.expensetracker.data.local.dao
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
+import androidx.room.Update
 import app.netlify.dev4rju9.expensetracker.data.local.entity.ExpenseEntity
+import app.netlify.dev4rju9.expensetracker.domain.model.Expense
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -26,4 +28,7 @@ interface ExpenseDao {
         AND strftime('%Y-%m', datetime(timestamp/1000, 'unixepoch')) = :month
     """)
     fun getMonthlyTotal(categoryId: Long, month: String): Flow<Double?>
+
+    @Update
+    suspend fun updateExpense (expense: ExpenseEntity)
 }
