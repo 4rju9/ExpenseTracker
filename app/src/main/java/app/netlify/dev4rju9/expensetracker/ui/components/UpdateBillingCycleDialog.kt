@@ -57,7 +57,9 @@ fun UpdateBillingCycleDialog(
                 OutlinedTextField(
                     value = billingCycleDay,
                     onValueChange = {
-                        if (it.isDigitsOnly() && it.toInt() <= 31) {
+                        if (it.isEmpty()) {
+                            billingCycleDay = it
+                        } else if (it.isDigitsOnly() && it.toIntOrNull() != null && it.toInt() <= 31) {
                             billingCycleDay = it
                         }
                     },
@@ -90,7 +92,7 @@ fun UpdateBillingCycleDialog(
                     TextButton(onClick = {
                         if (billingCycleDay.isNotEmpty() && billingCycleDay != day.toString()) {
                             onConfirm(billingCycleDay.toInt())
-                        }
+                        } else onConfirm(1)
                     }) { Text("Add", color = Color.Black) }
                 }
             }

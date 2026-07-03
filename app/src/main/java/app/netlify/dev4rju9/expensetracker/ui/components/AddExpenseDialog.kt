@@ -85,7 +85,10 @@ fun AddExpenseDialog(
                 OutlinedTextField(
                     value = amount,
                     onValueChange = {
-                        if (it.isDigitsOnly() || it.contains('.')) {
+                        if (it.isEmpty()) {
+                            amount = it
+                        }
+                        else if (it.isDigitsOnly() || it.contains('.')) {
                             amount = it
                         }
                     },
