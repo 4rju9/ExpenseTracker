@@ -4,8 +4,8 @@ import app.netlify.dev4rju9.expensetracker.domain.model.Expense
 import kotlinx.coroutines.flow.Flow
 
 interface ExpenseRepository {
-    fun getExpenses(categoryId: Long, month: String): Flow<List<Expense>>
-    fun getMonthlyTotal(categoryId: Long, month: String): Flow<Double>
+    fun getExpenses(categoryId: Long, start: Long, end: Long): Flow<List<Expense>>
+    fun getMonthlyTotal(categoryId: Long, start: Long, end: Long): Flow<Double>
     suspend fun addExpense(categoryId: Long, title: String, amount: Double)
     suspend fun updateExpense(expense: Expense)
 }

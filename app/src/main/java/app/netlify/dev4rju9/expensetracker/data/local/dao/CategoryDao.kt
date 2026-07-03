@@ -10,14 +10,25 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface CategoryDao {
 
-    @Query("SELECT * FROM categories WHERE createdMonth = :month ORDER BY id DESC")
-    fun getCategoriesForMonth(month: String): Flow<List<CategoryEntity>>
+    @Query("""
+        SELECT * FROM categories
+        WHERE createdAt BETWEEN :start AND :end
+        ORDER BY id DESC
+    """)
+    fun getCategoriesForMonth(start: Long, end: Long): Flow<List<CategoryEntity>>
 
     @Insert
     suspend fun insertCategory(category: CategoryEntity): Long
 
-    @Query("SELECT * FROM categories WHERE name LIKE '%' || :query || '%'")
-    fun searchCategories(query: String): Flow<List<CategoryEntity>>
+    @Query(
+        """
+        SELECT * FROM categories
+        WHERE (:query IS NULL OR name LIKE '%' || :query || '%')
+        AND createdAt BETWEEN :start AND :end
+        ORDER BY id DESC
+    """
+    )
+    fun searchCategories(query: String, start: Long, end: Long): Flow<List<CategoryEntity>>
 
     @Query("SELECT * FROM categories WHERE id = :categoryId")
     suspend fun getCategory(categoryId: Long): CategoryEntity

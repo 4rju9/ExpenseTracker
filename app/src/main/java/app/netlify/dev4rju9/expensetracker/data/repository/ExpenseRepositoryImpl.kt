@@ -12,13 +12,13 @@ class ExpenseRepositoryImpl(
     private val expenseDao: ExpenseDao
 ) : ExpenseRepository {
 
-    override fun getExpenses(categoryId: Long, month: String): Flow<List<Expense>> {
-        return expenseDao.getExpensesForCategory(categoryId, month)
+    override fun getExpenses(categoryId: Long, start: Long, end: Long): Flow<List<Expense>> {
+        return expenseDao.getExpensesForCategory(categoryId, start, end)
             .map { list -> list.map { it.toDomain() } }
     }
 
-    override fun getMonthlyTotal(categoryId: Long, month: String): Flow<Double> {
-        return expenseDao.getMonthlyTotal(categoryId, month)
+    override fun getMonthlyTotal(categoryId: Long, start: Long, end: Long): Flow<Double> {
+        return expenseDao.getMonthlyTotal(categoryId, start, end)
             .map { it ?: 0.0 }
     }
 

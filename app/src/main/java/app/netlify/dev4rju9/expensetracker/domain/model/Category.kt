@@ -5,5 +5,5 @@ data class Category(
     val name: String,
     val total: Double,
     val color: Int,
-    val createdMonth: String
+    val createdAt: Long
 )

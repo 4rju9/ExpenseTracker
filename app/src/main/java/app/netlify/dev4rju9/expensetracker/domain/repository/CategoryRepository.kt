@@ -4,8 +4,8 @@ import app.netlify.dev4rju9.expensetracker.domain.model.Category
 import kotlinx.coroutines.flow.Flow
 
 interface CategoryRepository {
-    fun getCategoriesForMonth(month: String): Flow<List<Category>>
-    fun searchCategories(query: String): Flow<List<Category>>
+    fun getCategoriesForMonth(start: Long, end: Long): Flow<List<Category>>
+    fun searchCategories(query: String, start: Long, end: Long): Flow<List<Category>>
     suspend fun addCategory(name: String, color: Int)
     suspend fun getCategory(categoryId: Long) : Category
     suspend fun updateCategory(category: Category)

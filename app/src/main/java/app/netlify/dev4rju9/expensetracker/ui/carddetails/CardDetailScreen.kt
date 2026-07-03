@@ -30,6 +30,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import app.netlify.dev4rju9.expensetracker.data.local.entity.CategoryEntity
@@ -37,6 +38,8 @@ import app.netlify.dev4rju9.expensetracker.domain.model.Category
 import app.netlify.dev4rju9.expensetracker.domain.model.Expense
 import app.netlify.dev4rju9.expensetracker.ui.components.AddExpenseDialog
 import app.netlify.dev4rju9.expensetracker.ui.components.CardItem
+import app.netlify.dev4rju9.expensetracker.util.Utility.getCycleRangeFromMonth
+import app.netlify.dev4rju9.expensetracker.util.getBillingCycleDay
 import org.koin.androidx.compose.koinViewModel
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -44,12 +47,16 @@ import java.time.format.DateTimeFormatter
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CardDetailScreen(
-    categoryId: Long,
-    month: String,
-    viewModel: CardDetailViewModel = koinViewModel()
+    categoryId: Long, month: String, viewModel: CardDetailViewModel = koinViewModel()
 ) {
-    val expenses by viewModel.expenses(categoryId, month).collectAsState()
-    val total by viewModel.total(categoryId, month).collectAsState()
+
+    val context = LocalContext.current
+    val billingDay = context.getBillingCycleDay()
+
+    val expenses by viewModel.expenses(categoryId, month, billingDay).collectAsState()
+
+    val total by viewModel.total(categoryId, month, billingDay).collectAsState()
+
     var category: Category? by remember { mutableStateOf(null) }
 
     var showDialog by remember { mutableStateOf(false) }
@@ -62,22 +69,19 @@ fun CardDetailScreen(
 
     Scaffold(
         floatingActionButton = {
-            Row (
+            Row(
                 modifier = Modifier.fillMaxWidth(0.9f),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "Total: ₹%.2f".format(total),
-                    style = MaterialTheme.typography.titleLarge
+                    text = "Total: ₹%.2f".format(total), style = MaterialTheme.typography.titleLarge
                 )
                 FloatingActionButton(
-                    onClick = { showDialog = true },
-                    shape = CircleShape
+                    onClick = { showDialog = true }, shape = CircleShape
                 ) { Icon(Icons.Default.Add, contentDescription = "Add Item") }
             }
-        }
-    ) { padding ->
+        }) { padding ->
         Column(
             modifier = Modifier
                 .padding(horizontal = 16.dp)
@@ -108,8 +112,7 @@ fun CardDetailScreen(
                         onLongClick = {
                             selectedExpense = expense
                             showDialog = true
-                        }
-                    )
+                        })
                 }
             }
         }
@@ -123,7 +126,10 @@ fun CardDetailScreen(
                 viewModel.add(categoryId, title, amount, expense)
                 showDialog = false
             },
-            onDismiss = { showDialog = false }
-        )
+            onRepeat = {title, amount ->
+                viewModel.add(categoryId, title, amount, null)
+                showDialog = false
+            },
+            onDismiss = { showDialog = false })
     }
 }

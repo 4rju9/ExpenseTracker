@@ -9,7 +9,10 @@ import app.netlify.dev4rju9.expensetracker.domain.usecase.GetExpensesForCategory
 import app.netlify.dev4rju9.expensetracker.domain.usecase.GetMonthlyTotalUseCase
 import app.netlify.dev4rju9.expensetracker.domain.usecase.UpdateCategoryUseCase
 import app.netlify.dev4rju9.expensetracker.domain.usecase.UpdateExpenseUseCase
+import app.netlify.dev4rju9.expensetracker.util.Utility.getCycleRangeFromMonth
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
@@ -22,15 +25,17 @@ class CardDetailViewModel(
     private val updateExpense: UpdateExpenseUseCase
 ) : ViewModel() {
 
-    suspend fun get (categoryId: Long) = getCategory(categoryId)
+    suspend fun get(categoryId: Long) = getCategory(categoryId)
 
-    fun expenses(categoryId: Long, month: String) =
-        getExpenses(categoryId, month)
-            .stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
+    fun expenses(categoryId: Long, month: String, billingDay: Int) = flow {
+        val (start, end) = getCycleRangeFromMonth(month, billingDay)
+        emitAll(getExpenses(categoryId, start, end))
+    }.stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
 
-    fun total(categoryId: Long, month: String) =
-        getMonthlyTotal(categoryId, month)
-            .stateIn(viewModelScope, SharingStarted.Lazily, 0.0)
+    fun total(categoryId: Long, month: String, billingDay: Int) = flow {
+        val (start, end) = getCycleRangeFromMonth(month, billingDay)
+        emitAll(getMonthlyTotal(categoryId, start, end))
+    }.stateIn(viewModelScope, SharingStarted.Lazily, 0.0)
 
     fun add(categoryId: Long, title: String, amount: Double, expense: Expense?) {
         if (title.isEmpty()) return
@@ -42,7 +47,7 @@ class CardDetailViewModel(
 
             expense?.let {
                 updateExpense(it.copy(title = newTitle, amount = amount))
-            }?: run { addExpense(categoryId, newTitle, amount) }
+            } ?: run { addExpense(categoryId, newTitle, amount) }
 
             updateCategory(category.copy(total = newTotal))
         }

@@ -14,7 +14,7 @@ data class CategoryEntity(
     val name: String,
     val total: Double,
     val color: Int,
-    val createdMonth: String // "2025-01"
+    val createdAt: Long
 ) {
 
     companion object {

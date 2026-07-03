@@ -5,7 +5,6 @@ import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Update
 import app.netlify.dev4rju9.expensetracker.data.local.entity.ExpenseEntity
-import app.netlify.dev4rju9.expensetracker.domain.model.Expense
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -14,10 +13,14 @@ interface ExpenseDao {
     @Query("""
         SELECT * FROM expenses 
         WHERE categoryId = :categoryId 
-        AND strftime('%Y-%m', datetime(timestamp/1000, 'unixepoch')) = :month
+        AND timestamp BETWEEN :start AND :end
         ORDER BY id DESC
     """)
-    fun getExpensesForCategory(categoryId: Long, month: String): Flow<List<ExpenseEntity>>
+    fun getExpensesForCategory(
+        categoryId: Long,
+        start: Long,
+        end: Long
+    ): Flow<List<ExpenseEntity>>
 
     @Insert
     suspend fun insertExpense(expense: ExpenseEntity)
@@ -25,9 +28,13 @@ interface ExpenseDao {
     @Query("""
         SELECT SUM(amount) FROM expenses 
         WHERE categoryId = :categoryId
-        AND strftime('%Y-%m', datetime(timestamp/1000, 'unixepoch')) = :month
+        AND timestamp BETWEEN :start AND :end
     """)
-    fun getMonthlyTotal(categoryId: Long, month: String): Flow<Double?>
+    fun getMonthlyTotal(
+        categoryId: Long,
+        start: Long,
+        end: Long
+    ): Flow<Double?>
 
     @Update
     suspend fun updateExpense (expense: ExpenseEntity)

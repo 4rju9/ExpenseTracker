@@ -17,79 +17,51 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.core.text.isDigitsOnly
 import app.netlify.dev4rju9.expensetracker.domain.model.Expense
-import kotlin.math.exp
+import app.netlify.dev4rju9.expensetracker.ui.dashboard.DashboardViewModel
+import app.netlify.dev4rju9.expensetracker.util.getBillingCycleDay
 
 @Composable
-fun AddExpenseDialog(
-    color: Int,
-    expense: Expense? = null,
-    onConfirm: (String, Double, Expense?) -> Unit,
-    onRepeat: (String, Double) -> Unit,
+fun UpdateBillingCycleDialog(
+    day: Int,
+    onConfirm: (Int) -> Unit,
     onDismiss: () -> Unit
 ) {
-    var title by remember { mutableStateOf(expense?.title ?: "") }
-    var amount by remember {
-        mutableStateOf(
-            if (expense != null && expense.amount > 0.0) {
-                expense.amount.toString()
-            } else ""
-        )
-    }
 
-    Dialog(onDismissRequest = {}) {
+    var billingCycleDay by remember { mutableStateOf(day.toString()) }
+
+    Dialog(onDismissRequest = onDismiss) {
         Card (
             colors = CardDefaults.cardColors(
-                containerColor = Color(color),
+                containerColor = MaterialTheme.colorScheme.primaryContainer,
                 contentColor = Color.Black
             )
         ) {
             Column(Modifier.padding(16.dp)) {
-                Text("Add Expense", style = MaterialTheme.typography.titleLarge)
+                Text("Manage Billing Cycle", style = MaterialTheme.typography.titleLarge)
 
                 Spacer(Modifier.height(8.dp))
 
                 OutlinedTextField(
-                    value = title,
-                    onValueChange = { title = it },
-                    placeholder = { Text("Title") },
-                    maxLines = 1,
-                    shape = RoundedCornerShape(30.dp),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        unfocusedBorderColor = Color.Black,
-                        focusedBorderColor = Color.Black,
-                        cursorColor = Color.Black,
-                        focusedTextColor = Color.Black,
-                        unfocusedTextColor = Color.Black,
-                        focusedContainerColor = Color.Transparent,
-                        unfocusedContainerColor = Color.Transparent,
-                        focusedLabelColor = Color.Black,
-                        unfocusedLabelColor = Color.Black,
-                        focusedPlaceholderColor = Color.Black,
-                        unfocusedPlaceholderColor = Color.Black
-                    )
-                )
-
-                Spacer(Modifier.height(8.dp))
-
-                OutlinedTextField(
-                    value = amount,
+                    value = billingCycleDay,
                     onValueChange = {
-                        if (it.isDigitsOnly() || it.contains('.')) {
-                            amount = it
+                        if (it.isDigitsOnly() && it.toInt() <= 31) {
+                            billingCycleDay = it
                         }
                     },
-                    placeholder = { Text("Amount") },
+                    placeholder = { Text("Day") },
                     maxLines = 1,
                     shape = RoundedCornerShape(30.dp),
                     keyboardOptions = KeyboardOptions(
@@ -114,15 +86,11 @@ fun AddExpenseDialog(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.End
                 ) {
-                    val double = amount.toDoubleOrNull() ?: 0.0
                     TextButton(onClick = onDismiss) { Text("Cancel", color = Color.Black) }
-                    expense?.let {
-                        TextButton(onClick = {
-                            onRepeat(title, double)
-                        }) { Text("Repeat", color = Color.Black) }
-                    }
                     TextButton(onClick = {
-                        onConfirm(title, double, expense)
+                        if (billingCycleDay.isNotEmpty() && billingCycleDay != day.toString()) {
+                            onConfirm(billingCycleDay.toInt())
+                        }
                     }) { Text("Add", color = Color.Black) }
                 }
             }
