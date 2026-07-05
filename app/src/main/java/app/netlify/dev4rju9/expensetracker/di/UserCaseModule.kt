@@ -2,11 +2,13 @@ package app.netlify.dev4rju9.expensetracker.di
 
 import app.netlify.dev4rju9.expensetracker.domain.usecase.AddCategoryUseCase
 import app.netlify.dev4rju9.expensetracker.domain.usecase.AddExpenseUseCase
+import app.netlify.dev4rju9.expensetracker.domain.usecase.GetBillingDay
 import app.netlify.dev4rju9.expensetracker.domain.usecase.GetCategoriesForMonthUseCase
 import app.netlify.dev4rju9.expensetracker.domain.usecase.GetCategoryUseCase
 import app.netlify.dev4rju9.expensetracker.domain.usecase.GetExpensesForCategoryUseCase
 import app.netlify.dev4rju9.expensetracker.domain.usecase.GetMonthlyTotalUseCase
 import app.netlify.dev4rju9.expensetracker.domain.usecase.SearchCategoriesUseCase
+import app.netlify.dev4rju9.expensetracker.domain.usecase.SetBillingDay
 import app.netlify.dev4rju9.expensetracker.domain.usecase.UpdateCategoryUseCase
 import app.netlify.dev4rju9.expensetracker.domain.usecase.UpdateExpenseUseCase
 import org.koin.dsl.module
@@ -21,4 +23,6 @@ val useCaseModule = module {
     factory { GetCategoryUseCase(get()) }
     factory { UpdateCategoryUseCase(get()) }
     factory { UpdateExpenseUseCase(get()) }
+    factory { GetBillingDay(get()) }
+    factory { SetBillingDay(get()) }
 }

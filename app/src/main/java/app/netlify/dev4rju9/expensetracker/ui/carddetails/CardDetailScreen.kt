@@ -22,7 +22,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -30,19 +29,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import app.netlify.dev4rju9.expensetracker.data.local.entity.CategoryEntity
 import app.netlify.dev4rju9.expensetracker.domain.model.Category
-import app.netlify.dev4rju9.expensetracker.domain.model.Expense
 import app.netlify.dev4rju9.expensetracker.ui.components.AddExpenseDialog
 import app.netlify.dev4rju9.expensetracker.ui.components.CardItem
-import app.netlify.dev4rju9.expensetracker.util.Utility.getCycleRangeFromMonth
-import app.netlify.dev4rju9.expensetracker.util.getBillingCycleDay
 import org.koin.androidx.compose.koinViewModel
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -50,18 +44,17 @@ fun CardDetailScreen(
     categoryId: Long, month: String, viewModel: CardDetailViewModel = koinViewModel()
 ) {
 
-    val context = LocalContext.current
-    val billingDay = context.getBillingCycleDay()
+    val billingDay by viewModel.billingDay.collectAsStateWithLifecycle()
 
-    val expenses by viewModel.expenses(categoryId, month, billingDay).collectAsState()
+    val expenses by viewModel.expenses(categoryId, month, billingDay).collectAsStateWithLifecycle()
 
-    val total by viewModel.total(categoryId, month, billingDay).collectAsState()
+    val total by viewModel.total(categoryId, month, billingDay).collectAsStateWithLifecycle()
 
     var category: Category? by remember { mutableStateOf(null) }
 
-    var showDialog by remember { mutableStateOf(false) }
+    val showDialog by viewModel.showDialog.collectAsStateWithLifecycle()
 
-    var selectedExpense: Expense? by remember { mutableStateOf(null) }
+    val selectedExpense by viewModel.selectedExpense.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
         category = viewModel.get(categoryId)
@@ -78,7 +71,7 @@ fun CardDetailScreen(
                     text = "Total: ₹%.2f".format(total), style = MaterialTheme.typography.titleLarge
                 )
                 FloatingActionButton(
-                    onClick = { showDialog = true }, shape = CircleShape
+                    onClick = { viewModel.toggleDialogState(true) }, shape = CircleShape
                 ) { Icon(Icons.Default.Add, contentDescription = "Add Item") }
             }
         }) { padding ->
@@ -110,8 +103,8 @@ fun CardDetailScreen(
                         color = category?.color ?: CategoryEntity.categoryColors.random().toArgb(),
                         timestamp = expense.timestamp,
                         onLongClick = {
-                            selectedExpense = expense
-                            showDialog = true
+                            viewModel.onExpenseSelected(expense)
+                            viewModel.toggleDialogState(true)
                         })
                 }
             }
@@ -124,12 +117,12 @@ fun CardDetailScreen(
             expense = selectedExpense,
             onConfirm = { title, amount, expense ->
                 viewModel.add(categoryId, title, amount, expense)
-                showDialog = false
+                viewModel.toggleDialogState(false)
             },
             onRepeat = {title, amount ->
                 viewModel.add(categoryId, title, amount, null)
-                showDialog = false
+                viewModel.toggleDialogState(false)
             },
-            onDismiss = { showDialog = false })
+            onDismiss = { viewModel.toggleDialogState(false) })
     }
 }

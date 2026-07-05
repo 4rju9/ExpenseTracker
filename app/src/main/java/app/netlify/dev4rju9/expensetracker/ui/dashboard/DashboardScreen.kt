@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
@@ -23,7 +22,6 @@ import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -32,25 +30,18 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import app.netlify.dev4rju9.expensetracker.domain.model.Category
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import app.netlify.dev4rju9.expensetracker.ui.components.AddCategoryDialog
 import app.netlify.dev4rju9.expensetracker.ui.components.CardItem
 import app.netlify.dev4rju9.expensetracker.ui.components.UpdateBillingCycleDialog
-import app.netlify.dev4rju9.expensetracker.util.getBillingCycleDay
 import app.netlify.dev4rju9.expensetracker.util.saveBillingCycleDay
 import org.koin.androidx.compose.koinViewModel
-import kotlin.math.roundToLong
 
 @Composable
 fun DashboardScreen(
@@ -58,25 +49,19 @@ fun DashboardScreen(
 ) {
 
     val context = LocalContext.current
-    var billingCycleDay by remember { mutableIntStateOf(1) }
+    val billingCycleDay by viewModel.billingDay.collectAsStateWithLifecycle()
 
-    LaunchedEffect(true) {
-        billingCycleDay = context.getBillingCycleDay()
-        viewModel.setBillingDay(billingCycleDay)
-    }
+    val selectedMonth by viewModel.selectedMonth.collectAsStateWithLifecycle()
+    val categories by viewModel.categories.collectAsStateWithLifecycle()
 
-    val selectedMonth by viewModel.selectedMonth.collectAsState()
-    val categories by viewModel.categories.collectAsState()
+    val searchQuery by viewModel.searchQuery.collectAsStateWithLifecycle()
+    val searchResult by viewModel.searchResult.collectAsStateWithLifecycle()
 
-    var searchQuery by remember { mutableStateOf("") }
-    val searchResult by viewModel.search(searchQuery, selectedMonth, billingCycleDay)
-        .collectAsState(initial = emptyList())
-
-    var showDialog by remember { mutableStateOf(false) }
-    var showUpdateCycleDialog by remember { mutableStateOf(false) }
+    val showDialog by viewModel.showDialog.collectAsStateWithLifecycle()
+    val showUpdateCycleDialog by viewModel.showBillingCycleDialog.collectAsStateWithLifecycle()
     val isSearching = searchQuery.isNotBlank()
 
-    var selectedCategory: Category? by remember { mutableStateOf(null) }
+    val selectedCategory by viewModel.selectedCategory.collectAsStateWithLifecycle()
 
     Scaffold(
         floatingActionButton = {
@@ -90,7 +75,7 @@ fun DashboardScreen(
                     text = "Total: ₹%.2f".format(total), style = MaterialTheme.typography.titleLarge
                 )
                 FloatingActionButton(
-                    onClick = { showDialog = true }, shape = CircleShape
+                    onClick = { viewModel.toggleDialogState(true) }, shape = CircleShape
                 ) { Icon(Icons.Default.Add, contentDescription = "Add Category") }
             }
         }) { padding ->
@@ -116,7 +101,7 @@ fun DashboardScreen(
                     modifier = Modifier.clickable(
                         indication = null,
                         interactionSource = remember { MutableInteractionSource() }) {
-                        showUpdateCycleDialog = true
+                        viewModel.toggleBillingDialogState(true)
                     })
                 IconButton(onClick = viewModel::nextMonth, enabled = viewModel.hasNextMonth()) {
                     Icon(
@@ -132,7 +117,7 @@ fun DashboardScreen(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(30.dp),
                 value = searchQuery,
-                onValueChange = { searchQuery = it },
+                onValueChange = { viewModel.updateSearchQuery(it) },
                 placeholder = { Text("Search Categories") },
                 singleLine = true,
                 leadingIcon = {
@@ -140,7 +125,7 @@ fun DashboardScreen(
                 },
                 trailingIcon = {
                     if (searchQuery.isNotEmpty()) {
-                        IconButton(onClick = { searchQuery = "" }) {
+                        IconButton(onClick = { viewModel.updateSearchQuery("") }) {
                             Icon(
                                 Icons.Default.Close, contentDescription = "Clear"
                             )
@@ -166,8 +151,8 @@ fun DashboardScreen(
                         curCornerSize = 30.dp,
                         onClick = { onNavigateToCategory(category.id, selectedMonth) },
                         onLongClick = {
-                            selectedCategory = category
-                            showDialog = true
+                            viewModel.onCategorySelected(category)
+                            viewModel.toggleDialogState(true)
                         })
                 }
             }
@@ -177,20 +162,19 @@ fun DashboardScreen(
     if (showDialog) {
         AddCategoryDialog(category = selectedCategory, onConfirm = { name, color, category ->
             viewModel.addNewCategory(name, color, category)
-            selectedCategory = null
-            showDialog = false
+            viewModel.onCategorySelected(null)
+            viewModel.toggleDialogState(false)
         }, onDismiss = {
-            selectedCategory = null
-            showDialog = false
+            viewModel.onCategorySelected(null)
+            viewModel.toggleDialogState(false)
         })
     }
 
     if (showUpdateCycleDialog) {
         UpdateBillingCycleDialog(day = billingCycleDay, onConfirm = {
-            showUpdateCycleDialog = false
+            viewModel.toggleBillingDialogState(false)
             context.saveBillingCycleDay(it)
-            billingCycleDay = it
-            viewModel.setBillingDay(it)
-        }, onDismiss = { showUpdateCycleDialog = false })
+            viewModel.saveBillingDay(it)
+        }, onDismiss = { viewModel.toggleBillingDialogState(false) })
     }
 }
