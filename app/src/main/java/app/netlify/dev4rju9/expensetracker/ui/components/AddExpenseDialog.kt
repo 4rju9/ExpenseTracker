@@ -41,9 +41,7 @@ fun AddExpenseDialog(
     var title by remember { mutableStateOf(expense?.title ?: "") }
     var amount by remember {
         mutableStateOf(
-            if (expense != null && expense.amount > 0.0) {
-                expense.amount.toString()
-            } else ""
+            expense?.amount?.let { "%.2f".format(it) } ?: ""
         )
     }
 
@@ -61,7 +59,7 @@ fun AddExpenseDialog(
 
                 OutlinedTextField(
                     value = title,
-                    onValueChange = { title = it },
+                    onValueChange = { if (!it.contains("\n")) title = it },
                     placeholder = { Text("Title") },
                     maxLines = 1,
                     shape = RoundedCornerShape(30.dp),
@@ -84,12 +82,9 @@ fun AddExpenseDialog(
 
                 OutlinedTextField(
                     value = amount,
-                    onValueChange = {
-                        if (it.isEmpty()) {
-                            amount = it
-                        }
-                        else if (it.isDigitsOnly() || it.contains('.')) {
-                            amount = it
+                    onValueChange = { value ->
+                        if (value.matches(Regex("-?\\d*(\\.\\d*)?"))) {
+                            amount = value
                         }
                     },
                     placeholder = { Text("Amount") },

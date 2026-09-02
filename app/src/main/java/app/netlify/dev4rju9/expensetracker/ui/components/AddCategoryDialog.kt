@@ -106,7 +106,7 @@ fun AddCategoryDialog(
 
                 OutlinedTextField(
                     value = name,
-                    onValueChange = { name = it },
+                    onValueChange = { if (!it.contains("\n")) name = it },
                     placeholder = { Text("Category name") },
                     maxLines = 1,
                     shape = RoundedCornerShape(30.dp),
